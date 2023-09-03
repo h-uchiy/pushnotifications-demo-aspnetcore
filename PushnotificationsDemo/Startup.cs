@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,8 +10,8 @@ using Microsoft.Net.Http.Headers;
 using PushnotificationsDemo.Models;
 using PushnotificationsDemo.Services;
 using System;
-using System.Diagnostics;
 using System.IO.Compression;
+using Microsoft.Extensions.Hosting;
 
 namespace PushnotificationsDemo
 {
@@ -31,9 +30,9 @@ namespace PushnotificationsDemo
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IPushService, PushService>();
 
-            services.AddDbContextPool<DemoDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
+            services.AddDbContext<DemoDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(options => options.EnableEndpointRouting = false);
 
             // Add gzip compression
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
@@ -67,7 +66,7 @@ namespace PushnotificationsDemo
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DemoDbContext dbContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -77,15 +76,6 @@ namespace PushnotificationsDemo
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
-            }
-            
-            try
-            {
-                dbContext.Database.Migrate();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine($"An error occurred seeding the DB: {e}");
             }
 
             app.UseHttpsRedirection();

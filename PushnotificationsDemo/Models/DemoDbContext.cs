@@ -1,17 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace PushnotificationsDemo.Models
+namespace PushnotificationsDemo.Models;
+
+public class DemoDbContext : DbContext
 {
-    public class DemoDbContext : DbContext
-    {
-        public DemoDbContext(DbContextOptions options) : base(options) { }
+    public DemoDbContext(DbContextOptions options) : base(options) { }
         
-        public DbSet<PushSubscription> PushSubscription { get; set; }
+    public DbSet<PushSubscription> PushSubscription { get; set; }
         
 
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-        }
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
     }
 }
